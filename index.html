@@ -35,22 +35,16 @@
         letter-spacing: 3px;
       }
 
-      #chosenActivity {
+      #timer {
+        font-size: 2em;
+        font-weight: bold;
+        background: rgba(255, 0, 0, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
         position: fixed;
-        top: 8%;
+        top: 10%;
         left: 50%;
         transform: translateX(-50%);
-        width: 75%;
-        max-width: 600px;
-        font-size: 1.5em;
-        background: rgba(142, 24, 95, 0.8);
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(115, 146, 44, 0.1);
-        opacity: 1;
-        transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-        z-index: 9999;
-        pointer-events: none;
       }
 
       #drinkResult {
@@ -102,133 +96,18 @@
         box-shadow: 0 0 25px rgba(255, 0, 0, 0.8);
         transform: scale(1.3);
       }
-
-      /* Boutons en bas à droite */
-      .fullscreen-button,
-      .refresh-button {
-        position: fixed;
-        bottom: 15px;
-        width: 40px;
-        height: 40px;
-        border: none;
-        border-radius: 50%;
-        color: white;
-        cursor: pointer;
-        font-size: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      /* Bouton plein écran */
-      .fullscreen-button {
-        right: 15px;
-        background-color: rgba(34, 34, 34, 0.8);
-      }
-
-      .fullscreen-button:hover {
-        background-color: rgba(68, 68, 68, 0.9);
-      }
-
-      /* Bouton refresh */
-      .refresh-button {
-        right: 65px;
-        background-color: rgba(76, 175, 80, 0.8);
-      }
-
-      .refresh-button:hover {
-        background-color: rgba(69, 160, 73, 0.9);
-      }
-
-      .cul-sec {
-        color: #ff0000;
-        font-size: 1.3em;
-        animation: pulse 1s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
     </style>
   </head>
   <body>
-    <div id="chosenActivity">Touchez l'écran pour commencer...</div>
+    <div id="timer">1:00</div>
     <div id="drinkResult"></div>
     <div id="fingerContainer"></div>
 
-    <!-- Bouton Refresh -->
-    <button class="refresh-button" onclick="window.location.reload();">
-      🍺
-    </button>
-
-    <!-- Bouton Plein Écran -->
-    <button class="fullscreen-button" onclick="toggleFullscreen()">🫦</button>
-
     <script>
-      function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen();
-        } else {
-          document.exitFullscreen();
-        }
-      }
-      const activitémax = [
-        "telephone arabe",
-        "figure accrosport",
-        "As tu déjà ri du malheur de quelqu'un ?",
-        "As tu déjà vomis dans un lieu public ?",
-        "Meilleur anecdote de soirée",
-        "Meilleur anecdote au bassin a flot",
-        "Meilleur anecdote avec un bureau",
-        "Meilleur anecdote avec un vélo",
-        "Meilleur anecdote avec un bateau",
-      ];
-
-      const activité1 = [
-        "roulade",
-        "pompe à une main",
-        "fait le poirier",
-        "pictionnary ",
-        "invente une danse",
-        "raconte une histoire avec une voix aigue",
-        "speech sur un objet banal",
-        "présente la météo",
-        "envoie un selfi ridicule à tes parents",
-        "essaye de faire un tour de magie",
-        "karaoké",
-        "imite une personne autour de toi",
-        "Quelle est ton talent chaché",
-        "Quelle est le plat que tu as raté en cuisine",
-        "Quelle est le cadeau le plus bizarre que tu es reçu",
-        "Quelle est la pire mode que tu est suivi",
-        "traverse la salle les yeux bander",
-      ];
-
-      const activité2 = [
-        "invente ta rencontre avec une personne",
-        "decris quelqu'un en 3 adjectif",
-        "pompe avec une personne sur le dos",
-        "course de chaise",
-        "course de brouette",
-        "concours de regard",
-        "lire les message avec une personne",
-        "fais une chason sur une personne",
-        "reproduit la scene du titanic",
-        "reproduit le portée de Dirty Dancing",
-        "Changer de chaussures",
-      ];
-
       let fingers = [];
       let touchPositions = {};
       let selectionTimeout;
+      let countdown;
 
       document
         .getElementById("fingerContainer")
@@ -262,13 +141,7 @@
       function chooseFingers() {
         if (fingers.length === 0) return;
 
-        let phrase = choisirPhrase();
-        afficherPhrase(phrase);
-
-        // Nombre aléatoire de doigts à choisir (1 à nombre total de doigts)
         let nombreDoigts = Math.floor(Math.random() * fingers.length) + 1;
-
-        // Choisir le résultat de boisson (1-6 gorgées ou cul sec)
         let drinkResult = determinerGorgees();
         afficherResultatBoisson(drinkResult);
 
@@ -281,44 +154,39 @@
         }
 
         chosen.forEach((i) => fingers[i].classList.add("chosen"));
-      }
-
-      function choisirPhrase() {
-        let allActivities = [...activitémax, ...activité1, ...activité2];
-        return allActivities[Math.floor(Math.random() * allActivities.length)];
+        startTimer();
       }
 
       function determinerGorgees() {
-        // 1 chance sur 7 d'avoir un cul sec, sinon 1-6 gorgées
         const random = Math.floor(Math.random() * 7) + 1;
-        if (random === 7) {
-          return "CUL SEC !";
-        } else {
-          return random + " gorgée" + (random > 1 ? "s" : "");
-        }
-      }
-
-      function afficherPhrase(phrase) {
-        const chosenActivityDiv = document.getElementById("chosenActivity");
-        chosenActivityDiv.textContent = "Activité choisie : " + phrase;
-        chosenActivityDiv.style.opacity = "1";
-        chosenActivityDiv.style.transform = "translate(-50%, 0)";
+        return random === 7
+          ? "CUL SEC !"
+          : random + " gorgée" + (random > 1 ? "s" : "");
       }
 
       function afficherResultatBoisson(resultat) {
         const drinkResultDiv = document.getElementById("drinkResult");
-        if (resultat === "CUL SEC !") {
-          drinkResultDiv.innerHTML =
-            '<span class="cul-sec">🍻 CUL SEC ! 🍻</span>';
-        } else {
-          drinkResultDiv.textContent = "🍺 " + resultat + " 🍺";
-        }
+        drinkResultDiv.textContent = "🍺 " + resultat + " 🍺";
         drinkResultDiv.style.opacity = "1";
-
-        // Masquer le résultat après 5 secondes
         setTimeout(() => {
           drinkResultDiv.style.opacity = "0";
         }, 5000);
+      }
+
+      function startTimer() {
+        let time = 60;
+        clearInterval(countdown);
+        countdown = setInterval(() => {
+          let minutes = Math.floor(time / 60);
+          let seconds = time % 60;
+          document.getElementById("timer").textContent = `${minutes}:${
+            seconds < 10 ? "0" : ""
+          }${seconds}`;
+          time--;
+          if (time < 0) {
+            clearInterval(countdown);
+          }
+        }, 1000);
       }
     </script>
   </body>
