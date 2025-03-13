@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quiz Tonic</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Anton&family=Bangers&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -54,26 +54,16 @@
         transform: translateX(-50%);
         width: 75%;
         max-width: 600px;
-        font-size: 3em;
-        font-family: "Bangers", cursive;
-        background: linear-gradient(45deg, #ff8c00, #ff2e63);
-        color: #fff;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        font-size: 2em;
+        background: rgba(44, 146, 115, 0.8);
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         opacity: 0;
-        transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-        transform: scale(0.5);
-        text-transform: uppercase;
-        border: 5px solid #fff;
-        text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+        transition: opacity 0.5s ease-in-out;
         z-index: 9999;
         pointer-events: none;
-      }
-
-      .show {
-        opacity: 1 !important;
-        transform: scale(1) !important;
+        font-weight: bold;
       }
 
       #fingerContainer {
@@ -85,6 +75,26 @@
         display: flex;
         justify-content: center;
         align-items: center;
+      }
+
+      .finger {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(45deg, #ff5f6d, #ffc3a0);
+        color: white;
+        text-align: center;
+        line-height: 90px;
+        border-radius: 50%;
+        font-size: 24px;
+        position: absolute;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .chosen {
+        background: linear-gradient(45deg, #cd3c15, #917c7c);
+        color: #c8df45;
+        box-shadow: 0 0 25px rgba(255, 0, 0, 0.8);
+        transform: scale(1.3);
       }
 
       #fullscreenBtn,
@@ -99,7 +109,7 @@
         border-radius: 10px;
         background: rgba(0, 0, 0, 0.7);
         color: white;
-        z-index: 10000;
+        z-index: 10000; /* Pour que les boutons restent toujours devant */
       }
 
       #modeSelector {
@@ -121,9 +131,10 @@
 
     <script>
       let fingers = [];
+      let touchPositions = {};
       let selectionTimeout;
       let countdown;
-      let mode = "hard";
+      let mode = "hard"; // Mode par défaut
 
       document
         .getElementById("modeSelector")
@@ -135,35 +146,29 @@
         .getElementById("fullscreenBtn")
         .addEventListener("click", function () {
           if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().then(() => {
-              this.textContent = "Quitter Plein Écran";
-            });
+            document.documentElement.requestFullscreen();
+            this.textContent = "Quitter Plein Écran";
           } else {
-            document.exitFullscreen().then(() => {
-              this.textContent = "Plein Écran";
-            });
+            document.exitFullscreen();
+            this.textContent = "Plein Écran";
           }
         });
-
-      document.addEventListener("fullscreenchange", function () {
-        const fullscreenBtn = document.getElementById("fullscreenBtn");
-        fullscreenBtn.textContent = document.fullscreenElement
-          ? "Quitter Plein Écran"
-          : "Plein Écran";
-      });
 
       document
         .getElementById("fingerContainer")
         .addEventListener("touchstart", function (event) {
+          // Vérifie si l'interaction se fait sur un bouton ou un select
           if (
             event.target.tagName === "BUTTON" ||
             event.target.tagName === "SELECT"
-          )
+          ) {
             return;
+          }
 
           event.preventDefault();
           fingers.forEach((f) => f.remove());
           fingers = [];
+          touchPositions = {};
 
           for (let touch of event.touches) {
             let rect = event.target.getBoundingClientRect();
@@ -177,6 +182,7 @@
 
             document.getElementById("fingerContainer").appendChild(finger);
             fingers.push(finger);
+            touchPositions[touch.identifier] = finger;
           }
 
           clearTimeout(selectionTimeout);
@@ -188,9 +194,19 @@
       function chooseFingers() {
         if (fingers.length === 0) return;
 
+        let nombreDoigts = Math.floor(Math.random() * fingers.length) + 1;
         let drinkResult = determinerGorgees();
         afficherResultatBoisson(drinkResult);
 
+        fingers.forEach((f) => f.classList.remove("chosen"));
+        let chosen = [];
+
+        while (chosen.length < nombreDoigts && chosen.length < fingers.length) {
+          let index = Math.floor(Math.random() * fingers.length);
+          if (!chosen.includes(index)) chosen.push(index);
+        }
+
+        chosen.forEach((i) => fingers[i].classList.add("chosen"));
         startTimer();
       }
 
@@ -208,10 +224,9 @@
       function afficherResultatBoisson(resultat) {
         const drinkResultDiv = document.getElementById("drinkResult");
         drinkResultDiv.textContent = "🍺 " + resultat + " 🍺";
-        drinkResultDiv.classList.add("show");
-
+        drinkResultDiv.style.opacity = "1";
         setTimeout(() => {
-          drinkResultDiv.classList.remove("show");
+          drinkResultDiv.style.opacity = "0";
         }, 5000);
       }
 
