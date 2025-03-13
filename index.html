@@ -54,16 +54,42 @@
         transform: translateX(-50%);
         width: 75%;
         max-width: 600px;
-        font-size: 2em;
-        background: rgba(44, 146, 115, 0.8);
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        opacity: 0;
-        transition: opacity 0.5s ease-in-out;
+        font-size: 2.5em;
+        background: linear-gradient(
+          135deg,
+          rgba(44, 146, 115, 0.9),
+          rgba(0, 90, 70, 0.9)
+        );
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         z-index: 9999;
-        pointer-events: none;
         font-weight: bold;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        transition: transform 0.3s ease-in-out;
+      }
+
+      #drinkResult.cul-sec {
+        background: linear-gradient(
+          135deg,
+          rgba(200, 0, 0, 0.9),
+          rgba(150, 0, 0, 0.9)
+        );
+        animation: pulse 1.5s infinite;
+        border: 3px solid rgba(255, 255, 0, 0.5);
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: translateX(-50%) scale(1);
+        }
+        50% {
+          transform: translateX(-50%) scale(1.05);
+        }
+        100% {
+          transform: translateX(-50%) scale(1);
+        }
       }
 
       #fingerContainer {
@@ -116,6 +142,11 @@
         left: auto;
         right: 20px;
       }
+
+      .emoji {
+        font-size: 1.2em;
+        margin: 0 10px;
+      }
     </style>
   </head>
   <body>
@@ -126,7 +157,9 @@
     </select>
 
     <div id="timer">1:00</div>
-    <div id="drinkResult"></div>
+    <div id="drinkResult" style="display: none">
+      Touchez l'écran pour commencer
+    </div>
     <div id="fingerContainer"></div>
 
     <script>
@@ -212,7 +245,8 @@
 
       function determinerGorgees() {
         if (mode === "soft") {
-          return Math.floor(Math.random() * 3) + 1 + " gorgée(s)";
+          const gorges = Math.floor(Math.random() * 3) + 1;
+          return gorges + " gorgée" + (gorges > 1 ? "s" : "");
         } else {
           const random = Math.floor(Math.random() * 7) + 1;
           return random === 7
@@ -223,11 +257,22 @@
 
       function afficherResultatBoisson(resultat) {
         const drinkResultDiv = document.getElementById("drinkResult");
-        drinkResultDiv.textContent = "🍺 " + resultat + " 🍺";
-        drinkResultDiv.style.opacity = "1";
-        setTimeout(() => {
-          drinkResultDiv.style.opacity = "0";
-        }, 5000);
+
+        // Retirer la classe cul-sec pour réinitialiser
+        drinkResultDiv.classList.remove("cul-sec");
+
+        if (resultat === "CUL SEC !") {
+          drinkResultDiv.innerHTML =
+            '<span class="emoji">🔥</span> CUL SEC ! <span class="emoji">🔥</span>';
+          drinkResultDiv.classList.add("cul-sec");
+        } else {
+          drinkResultDiv.innerHTML =
+            '<span class="emoji">🍺</span> ' +
+            resultat +
+            ' <span class="emoji">🍺</span>';
+        }
+
+        drinkResultDiv.style.display = "block";
       }
 
       function startTimer() {
