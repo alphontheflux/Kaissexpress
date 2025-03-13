@@ -109,6 +109,7 @@
         border-radius: 10px;
         background: rgba(0, 0, 0, 0.7);
         color: white;
+        z-index: 10000; /* Pour que les boutons restent toujours devant */
       }
 
       #modeSelector {
@@ -156,6 +157,14 @@
       document
         .getElementById("fingerContainer")
         .addEventListener("touchstart", function (event) {
+          // Vérifie si l'interaction se fait sur un bouton ou un select
+          if (
+            event.target.tagName === "BUTTON" ||
+            event.target.tagName === "SELECT"
+          ) {
+            return;
+          }
+
           event.preventDefault();
           fingers.forEach((f) => f.remove());
           fingers = [];
